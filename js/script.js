@@ -1,78 +1,64 @@
-// Smooth scroll para enlaces de navegación
-document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-    anchor.addEventListener('click', function (e) {
-        e.preventDefault();
-        const target = document.querySelector(this.getAttribute('href'));
-        if (target) {
-            target.scrollIntoView({
-                behavior: 'smooth',
-                block: 'start'
+   
+        /* ── AÑO DINÁMICO ── */
+        document.getElementById('year').textContent = new Date().getFullYear();
+
+        /* ── SMOOTH SCROLL ── */
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            });
+        });
+
+        /* ── MENÚ HAMBURGUESA ── */
+        const hamburger = document.getElementById('hamburger');
+        const navMenu = document.getElementById('navMenu');
+
+        if (hamburger && navMenu) {
+            hamburger.addEventListener('click', () => {
+                const isOpen = hamburger.classList.toggle('active');
+                navMenu.classList.toggle('active');
+                hamburger.setAttribute('aria-expanded', isOpen);
+            });
+            navMenu.querySelectorAll('a').forEach(link => {
+                link.addEventListener('click', () => {
+                    hamburger.classList.remove('active');
+                    navMenu.classList.remove('active');
+                    hamburger.setAttribute('aria-expanded', 'false');
+                });
             });
         }
-    });
-});
 
-// Menú móvil
-const hamburger = document.querySelector('.hamburger');
-const navMenu = document.querySelector('.nav-menu');
-
-hamburger.addEventListener('click', () => {
-    hamburger.classList.toggle('active');
-    navMenu.classList.toggle('active');
-});
-
-// Cerrar menú al hacer clic en un enlace
-document.querySelectorAll('.nav-menu a').forEach(item => {
-    item.addEventListener('click', () => {
-        hamburger.classList.remove('active');
-        navMenu.classList.remove('active');
-    });
-});
-
-// Navbar scroll effect
-window.addEventListener('scroll', () => {
-    const navbar = document.querySelector('.navbar');
-    if (window.scrollY > 50) {
-        navbar.classList.add('scrolled');
-    } else {
-        navbar.classList.remove('scrolled');
-    }
-});
-
-// Animación de skills al hacer scroll
-const skillBars = document.querySelectorAll('.skill-progress');
-
-const animateSkills = () => {
-    skillBars.forEach(bar => {
-        const width = bar.getAttribute('data-width');
-        bar.style.width = width + '%';
-    });
-};
-
-// Observer para animaciones
-const observerOptions = {
-    threshold: 0.1,
-    rootMargin: '0px 0px -50px 0px'
-};
-
-const observer = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-        if (entry.isIntersecting) {
-            if (entry.target.id === 'habilidades') {
-                animateSkills();
-            }
-            entry.target.classList.add('fade-in-up');
+        /* ── NAVBAR SCROLL ── */
+        const navbar = document.getElementById('navbar');
+        if (navbar) {
+            window.addEventListener('scroll', () => {
+                navbar.classList.toggle('scrolled', window.scrollY > 50);
+            }, { passive: true });
         }
-    });
-}, observerOptions);
 
-// Observar secciones
-document.querySelectorAll('section').forEach(section => {
-    observer.observe(section);
-});
+        /* ── ANIMACIÓN SKILLS ── */
+        const skillBars = document.querySelectorAll('.skill-progress');
+        const animateSkills = () => {
+            skillBars.forEach(bar => {
+                const w = bar.getAttribute('data-width');
+                if (w) bar.style.width = w + '%';
+            });
+        };
 
-// Inicialización
-document.addEventListener('DOMContentLoaded', () => {
-    // Inicializar animaciones de skills
-    animateSkills();
-});
+        /* ── INTERSECTION OBSERVER ── */
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('fade-in-up');
+                    if (entry.target.id === 'habilidades') animateSkills();
+                }
+            });
+        }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+
+        document.querySelectorAll('section').forEach(s => observer.observe(s));
+
+        /* ── INIT ── */
+        document.addEventListener('DOMContentLoaded', animateSkills);
+    
